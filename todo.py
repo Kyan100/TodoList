@@ -22,5 +22,46 @@ while True:
             print("No tasks in the list.")
         else:
             print("\nTasks:")
-            for idx, t in enumerate(task, 1):
-                print(f"{idx}. {t}")
+            for i, t in enumerate(task, 1):
+                print(f"{i}. {t}")
+        
+    elif choice == "2":
+        new_task = input("Enter a new task: ")
+        task.append(new_task)
+
+        #saeve task to file task.txt
+        with open("task.txt", "w") as f:
+            for t in task:
+                f.write(t + "\n")
+
+        print("Task added successfully.")
+    
+    elif choice == "3":
+        if len(task) == 0:
+            print("No task to remove.")
+        else:
+            print("\nTasks:")
+            for i, t in enumerate(task, 1):
+                print(f"{i}. {t}")
+            try:
+                task_num = int(input("Enter the task number to remove: "))
+                if 1 <= task_num <= len(task):
+                    removed_task = task.pop(task_num - 1)
+
+                    #save task to file task.txt
+                    with open("task.txt", "w") as f:
+                        for t in task:
+                            f.write(t + "\n")
+
+                    print(f"Task '{removed_task}' removed successfully.")
+                else:
+                    print("Invalid task number.")
+            except ValueError:
+                print("Please enter a valid number.")
+    
+    elif choice == "4":
+        print("Exiting the program. Goodbye!")
+        break
+
+    else:
+        print("Invalid option. Please choose a valid option.")
