@@ -1,15 +1,46 @@
-task = [] # this is  a list or an array that store the txt file.
+# File name: advanced_todo.py
 
-#load task from file task.txt
-try: 
-    with open("task.txt", "r") as f:
-        for line in f:
-            task.append(line.strip())
+from datetime import datetime
+
+tasks = []
+
+# LOAD TASKS
+try:
+    with open("tasks.txt", "r") as file:
+        for line in file:
+            task_data = line.strip().split(" | ")
+
+            tasks.append({
+                "task": task_data[0],
+                "due": task_data[1],
+                "priority": task_data[2]
+            })
+
 except FileNotFoundError:
     pass
 
+
+# SAVE FUNCTION
+def save_tasks():
+    with open("tasks.txt", "w") as file:
+        for task in tasks:
+            file.write(
+                f"{task['task']} | {task['due']} | {task['priority']}\n"
+            )
+
+
+# SORT TASKS BY DATE
+def sort_tasks():
+    tasks.sort(
+        key=lambda task: datetime.strptime(task["due"], "%Y-%m-%d")
+    )
+
+
 while True:
-    print("\n ------ To Do List ------")
+
+    sort_tasks()
+
+    print("\n--- ADVANCED TO-DO LIST ---")
     print("1. View Tasks")
     print("2. Add Task")
     print("3. Remove Task")
@@ -17,51 +48,94 @@ while True:
 
     choice = input("Choose an option: ")
 
+    # VIEW TASKS
     if choice == "1":
-        if len(task) == 0:
-            print("No tasks in the list.")
+
+        if len(tasks) == 0:
+            print("No tasks found.")
+
         else:
-            print("\nTasks:")
-            for i, t in enumerate(task, 1):
-                print(f"{i}. {t}")
-        
+            print("\nYour Tasks:\n")
+
+            today = datetime.today()
+
+            for i, task in enumerate(tasks, start=1):
+
+                due_date = datetime.strptime(
+                    task["due"],
+                    "%Y-%m-%d"
+                )
+
+                overdue = ""
+
+                if due_date < today:
+                    overdue = "⚠️ OVERDUE"
+
+                print(
+                    f"{i}. {task['task']}"
+                    f"\n   Due: {task['due']}"
+                    f"\n   Priority: {task['priority']}"
+                    f"\n   {overdue}\n"
+                )
+
+    # ADD TASK
     elif choice == "2":
-        new_task = input("Enter a new task: ")
-        task.append(new_task)
 
-        #saeve task to file task.txt
-        with open("task.txt", "w") as f:
-            for t in task:
-                f.write(t + "\n")
+        new_task = input("Enter task: ")
 
-        print("Task added successfully.")
-    
+        due_date = input(
+            "Enter due date (YYYY-MM-DD): "
+        )
+
+        priority = input(
+            "Enter priority (Low / Medium / High): "
+        )
+
+        tasks.append({
+            "task": new_task,
+            "due": due_date,
+            "priority": priority
+        })
+
+        save_tasks()
+
+        print("Task added!")
+
+    # REMOVE TASK
     elif choice == "3":
-        if len(task) == 0:
-            print("No task to remove.")
+
+        if len(tasks) == 0:
+            print("No tasks to remove.")
+
         else:
-            print("\nTasks:")
-            for i, t in enumerate(task, 1):
-                print(f"{i}. {t}")
-            try:
-                task_num = int(input("Enter the task number to remove: "))
-                if 1 <= task_num <= len(task):
-                    removed_task = task.pop(task_num - 1)
 
-                    #save task to file task.txt
-                    with open("task.txt", "w") as f:
-                        for t in task:
-                            f.write(t + "\n")
+            for i, task in enumerate(tasks, start=1):
+                print(
+                    f"{i}. {task['task']} "
+                    f"({task['priority']})"
+                )
 
-                    print(f"Task '{removed_task}' removed successfully.")
-                else:
-                    print("Invalid task number.")
-            except ValueError:
-                print("Please enter a valid number.")
-    
+            remove = int(
+                input("Enter task number to remove: ")
+            )
+
+            if 1 <= remove <= len(tasks):
+
+                deleted = tasks.pop(remove - 1)
+
+                save_tasks()
+
+                print(
+                    f"Removed: {deleted['task']}"
+                )
+
+            else:
+                print("Invalid number.")
+
+    # EXIT
     elif choice == "4":
-        print("Exiting the program. Goodbye!")
+        print("Goodbye!")
         break
 
     else:
-        print("Invalid option. Please choose a valid option.")
+        print("Invalid option.")
